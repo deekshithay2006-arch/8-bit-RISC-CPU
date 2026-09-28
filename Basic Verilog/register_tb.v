@@ -2,11 +2,15 @@
 
 module register_tb;
 
+    // Testbench signals
     reg clk;
     reg rst;
     reg we;
     reg [7:0] d;
-    wire [7:0] q; // Instantiate Register Module
+
+    wire [7:0] q;
+
+    // DUT (Device Under Test)
     register uut (
         .clk(clk),
         .rst(rst),
@@ -15,7 +19,7 @@ module register_tb;
         .q(q)
     );
 
-    // Clock Generation (Period = 10ns)
+    // Clock generation (10 ns period)
     always #5 clk = ~clk;
 
     initial begin
@@ -25,29 +29,29 @@ module register_tb;
 
         // 1. Initialize Inputs
         clk = 0;
-        rst = 1; // Start in Reset state
-        we = 0;
-        d = 8'h00;
+        rst = 1;
+        we  = 0;
+        d   = 8'h00;
 
         #12;
-        rst = 0; // Release Reset
+        rst = 0;          // Release reset
 
-        // 2. Try writing data without Write Enable (we = 0)
+        // 2. Try writing without WE
         #10;
-        d = 8'hAA; // Output q should REMAIN 00 because we=0
+        d = 8'hAA;        // q should remain 00
 
-        // 3. Enable Write (we = 1)
+        // 3. Enable write
         #10;
-        we = 1;    // Output q should become 8'hAA on next clock edge
+        we = 1;           // q becomes AA at next rising edge
 
-        // 4. Change input without Write Enable
+        // 4. Disable write and change data
         #10;
         we = 0;
-        d = 8'h55; // Output q should STILL REMAIN 8'hAA
+        d = 8'h55;        // q should still remain AA
 
-        // 5. Test Asynchronous Reset mid-operation
+        // 5. Asynchronous reset
         #10;
-        rst = 1;   // Output q should INSTANTLY drop to 00 without waiting for clk
+        rst = 1;          // q instantly becomes 00
 
         #10;
         $finish;
